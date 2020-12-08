@@ -1,0 +1,18 @@
+create table user(
+ id  varchar(20) primary key, 
+passwd varchar(20) NOT NULL, 
+name varchar(20)
+);
+
+create table datas(
+	date date NOT NULL,
+	hour int,
+	amount double,
+	electro int,
+	light1 int,
+	light2 int,
+	light3 int,
+	light4 int,
+	userid varchar(20),
+	foreign key(userid) references user(id)
+);

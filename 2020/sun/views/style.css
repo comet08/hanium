@@ -1,0 +1,93 @@
+.main{
+    text-align: center;
+    background-color: rgb(202, 96, 96);
+    height: 100px;
+    position: relative;
+}
+
+#mainhead{
+    text-decoration: none;
+    color : white;
+    text-shadow: 0px 0px 2px white;
+    position: relative;
+    top : 15px;
+    font-size: 50px;
+}
+
+.content{
+    position: relative;
+    height: 600px;
+}
+
+#today{
+    text-align: center;
+    background-color: rgb(255, 233, 233);
+}
+
+div.monitoring{
+    text-align: center;
+    position: relative;
+}
+
+th{
+    width: 150px;
+}
+
+#selecteddate{
+    width: 200px;
+    text-align: center;
+    font-size: 20px;
+}
+
+#search{
+    width: 100px;
+    font-size: 20px;
+    background-color: rgb(202, 96, 96);
+    color:white;
+    padding: 1px 1px 1px 1px;
+}
+
+#login{
+    padding-left : 40%;
+}
+
+#login input[type=submit]{
+    color: white;
+     background-color: black;
+}
+
+#joinlink{
+    background-color: rgb(122, 134, 201);
+    text-align: center;
+    padding-left : 5px;
+    padding-right : 5px;
+    display : inline-block;
+}
+
+a{
+    text-decoration-line: none;
+    color:white;
+}
+
+#join{
+    text-align: center;
+    font-size: 50px;
+}
+
+#join input{
+    width : 200px;
+    height: 35px;
+    transition : width 1s;
+    border-radius: 10px 10px 10px 10px;
+}
+
+#join input:hover{
+    width : 220px; height: 35px;
+}
+
+#join button{
+    background-color: rgb(202, 96, 96);
+    color:white;
+    font-size: 20px;
+    border-radius: 5px 5px 5px 5px;
+}

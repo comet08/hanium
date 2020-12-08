@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sun Tracker</title>
+        <meta charset="utf-8">
+        <!-- stylesheet -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css"/>
+        <link type="text/css" rel="stylesheet" href="style.css">
+    </head>
+    
+    <body onload="clocking()">
+
+        <header> <h1 class="main"> <a id="mainhead" href="index.html"> Sun Tracker Monitoring</a> </h1></header>
+        <div id="login">
+            <form method="POST" action="/login">
+                <input type="text" placeholder="아이디" name="inputid">
+                <input type="password" placeholder="비밀번호" name="inputpw">
+                <input type="submit" value="login">
+
+                <div id="joinlink" style="display:inline"><a href="join.html">Join</a></div>
+            </form>
+            
+        </div>
+        
+        <div class ="content">
+            <hr>
+            <div id="today"> 현재 시간 : <div id="clock"></div> </div>
+            <hr><br>
+            <div class="monitoring">
+                <form id="selectdate">
+                    <input type="date" id="selecteddate">
+                    <button type="button" id="search" onclick="searchajax()">검색</button>
+                </form>
+                <br><br>
+                <table border="1" style="margin-left : 15%; border-collapse: collapse;">
+                    <thead style="border-bottom: 3px solid black;">
+                       <!-- <th>시간</th><th>전력 센서</th><th>조도 센서1</th><th>조도 센서2</th><th>조도 센서3</th><th>조도 센서4</th><th>누적 충전량(당일)</th> -->
+                       <th>시간</th><th>조도 센서1</th><th>조도 센서2</th><th>조도 센서3</th><th>조도 센서4</th>
+                    </thead>
+                    <tbody id="logtb">
+                        <tr><td>시간</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+                    </tbody>
+                    
+                </table>
+                <br><br>
+                <div id="linechart"></div>
+
+            </div>
+        </div>
+        
+    </body>
+    <!-- javascript -->
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.js"></script>
+   <script>
+       
+        /*var socket=io();
+        socket.on('connect',()=>{
+            socket.emit('da',1);
+            alert("!");
+        })*/
+        
+        $(document).ready(function(){
+                function test(){
+                    $.getJSON('http://localhost:3000/test', function(data){
+                        var lin =  document.getElementById("login");
+                        
+                       if(data[0]){
+                            lin.innerHTML = 
+                            ` 
+                            <form method="GET" action="/logout">
+                                ${data[1]}님 안녕하세요. 
+                              <input type="submit" value="logout">
+                              </form>
+                            `;
+                            searchajax();
+                        }
+                        else{
+                           lin.innerHTML = `
+                                <form method="POST" action="/login">
+                                <input type="text" placeholder="아이디" name="inputid">
+                                <input type="password" placeholder="비밀번호" name="inputpw">
+                                <input type="submit" value="login">
+                                <div id="joinlink" style="display:inline"><a href="join.html">Join</a></div>
+                                </form>
+                           `;
+                        }
+
+                    })
+                }
+ 
+                test();
+               
+        })
+        
+        let date = document.getElementById("clock");
+        let defaultdate = document.getElementById("selecteddate");
+        defaultdate.value = new Date().toISOString().substring(0,10);
+        let tb = document.getElementById("logtb");
+        
+
+        let  chart = c3.generate({
+                    bindto: "#linechart", //그리는 위치
+                    data: {
+                        json: {  //or columns
+                        time : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+                        조도1 : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 1],
+                        조도2 : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 5],
+                        조도3 : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 10],
+                        조도4 : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 15],
+                        },
+                        x: 'time',
+                        type: 'line'
+                    }
+        });
+
+        function searchajax(){   // ajax 비동기통신
+            var data = {
+                "date" : document.getElementById("selecteddate").value
+            };
+            data.toString();
+            var url = 'http://localhost:3000/showlog';
+            let message = "";
+            data = JSON.stringify(data);
+            console.log(data);
+            let tb = document.getElementById("logtb");
+            var oReq = new XMLHttpRequest();  //이게 응답 
+            oReq.open('post',url);
+            oReq.setRequestHeader('Content-Type', "application/json")// json 형태로 보낸다
+            oReq.send(data);
+            oReq.addEventListener('load', function(){  // 응답대기
+                 var result = JSON.parse(oReq.responseText);
+                 r = result;
+                 let arr1 = []; let arr2 = []; let arr3 = []; let arr4 = [];
+                 for(var i = 0; i <24; i++)
+                 {
+                     arr1[i] = 0; arr2[i] = 0; arr3[i] = 0; arr4[i] = 0;
+                 }
+                
+                 for(var i = 0; i < r.length; i++){
+                  // message+=`<tr><td>${r[i].hour}</td><td>${r[i].electro}</td><td>${r[i].light1}</td><td>${r[i].light2}</td><td>${r[i].light3}</td><td>${r[i].light4}</td><td>${r[i].amount}</td></tr>`;
+                  message+=`<tr><td>${r[i].hour}</td><td>${r[i].light1}</td><td>${r[i].light2}</td><td>${r[i].light3}</td><td>${r[i].light4}</td></tr>`;
+                   arr1[r[i].hour-1] = r[i].light1;
+                   arr2[r[i].hour-1] = r[i].light2;
+                   arr3[r[i].hour-1] = r[i].light3;
+                   arr4[r[i].hour-1] = r[i].light4;
+                }
+                logtb.innerHTML = message;
+               
+                chart = c3.generate({
+                    bindto: "#linechart", //그리는 위치
+                    data: {
+                        json: {  //or columns
+                        time : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+                        조도1 : arr1,
+                        조도2 : arr2,
+                        조도3 : arr3,
+                        조도4 : arr4,
+                        },
+                        x: 'time',
+                        type: 'line'
+                    }
+                });
+                   
+           })
+           }
+
+
+        function clocking(){
+            date.innerText = new Date();
+            setTimeout("clocking()",1000);
+        }
+
+       
+        
+    </script>
+</html>
+
+
+
+<!--
+ function searchAjax(url, data){ 비동기통신
+               
+                let message = "";
+               var data = {"selectdate" : data[0],
+                            "selectkey" : data[1],
+                            "selectcrop" : data[2]
+                };
+               data = JSON.stringify(data);
+               let tb = document.getElementById("logtb");
+               var oReq = new XMLHttpRequest();  이게 응답 
+               oReq.open('post',url);
+               oReq.setRequestHeader('Content-Type', "application/json")// json 형태로 보낸다
+               oReq.send(data);
+               oReq.addEventListener('load', function(){  응답대기
+                  var result = JSON.parse(oReq.responseText);
+                  r = result;
+                  for(let i = 0; i < r.length; i++)
+                  message+=`<tr><td>${r[i].reg_date}</td><td>${r[i].real_date}</td><td>${r[i].crop}</td><td>${r[i].address}</td><td>${r[i].keyword}</td><td>${r[i].value}</td><td>${r[i].des}</td></tr>`;
+                  tb.innerHTML = message;
+                    
+            })
+            }
+-->

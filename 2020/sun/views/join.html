@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sun Tracker</title>
+        <meta charset="utf-8">
+        <!-- stylesheet -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css"/>
+        <link type="text/css" rel="stylesheet" href="style.css">
+    </head>
+    
+    <body onload="clocking()">
+
+        <header> <h1 class="main"> <a id="mainhead" href="index.html"> Sun Tracker Monitoring</a> </h1></header>
+        <div id="join"><hr>
+            <form>
+                <input type="text" placeholder="id" id="inid"> <br>
+                <input type="password" placeholder = "password" id="inpw"> <br>
+                <input type="text" placeholder="name" id="inname"><br>
+                <button type="submit" onclick = "joining()">JOIN</button>
+            </form><hr>
+        </div>
+        
+        
+    </body>
+    <!-- javascript -->
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"></script>
+    <script>
+        
+        
+
+    </script>
+</html>
+<script>
+ let r;
+ function joining(){ 
+            var inid = document.getElementById("inid").value;
+            var inpw = document.getElementById("inpw").value;
+            var inname = document.getElementById("inname").value;
+               var data = {"inid" : inid,
+                            "inpw" : inpw,
+                            "inname" : inname
+                };
+                data.toString();
+               data = JSON.stringify(data);
+               var oReq = new XMLHttpRequest(); 
+               oReq.open('post', "http://localhost:3000/join");
+               oReq.setRequestHeader('Content-Type', "application/json")// json 형태로 보낸다
+               oReq.send(data);
+               oReq.addEventListener('load', function(){
+                  var result = JSON.parse(oReq.responseText);
+                  r = result;
+                 if(result){
+                     alert("회원가입에 성공하였습니다.");
+                     document.location.href = "http://localhost:3000";
+                 }
+                 else
+                    alert("회원가입에 실패하였습니다. 다시 시도해주세요.");  
+            });
+            };
+</script>
+</html>
